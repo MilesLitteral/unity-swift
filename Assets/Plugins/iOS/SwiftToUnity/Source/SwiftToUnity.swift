@@ -35,4 +35,6 @@ import Foundation
     @objc public func swiftConcatenate(_ x: String, y: String) -> String {
         return x + y
     }
+    
+    @objc public func String _GetImage();
 }

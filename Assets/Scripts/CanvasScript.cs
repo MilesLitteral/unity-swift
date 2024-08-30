@@ -1,6 +1,7 @@
 #if !UNITY_EDITOR && UNITY_IOS
 using System.Runtime.InteropServices;
 #endif
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,9 +14,18 @@ public class CanvasScript : MonoBehaviour
     public Text HelloWorldText = null;
     public Text AddText = null;
     public Text ConcatText = null;
+    public Image img = null;
 
     private float _update;
     private bool _called = false;
+    public Texture2D texture2D;
+    public string imagePath;
+
+    void OnGUI()
+    {
+        GUI.Button(new Rect(20, 20, 100, 100), texture2D);
+    }
+
 
 #if UNITY_IOS && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -29,6 +39,22 @@ public class CanvasScript : MonoBehaviour
 
     [DllImport("__Internal")]
     private static extern string cConcatenate(string x, string y);
+    
+    [DllImport("__Internal")]
+     private static extern string _GetImage();
+
+     
+    public static string GetImage()
+    {
+        if (Application.platform != RuntimePlatform.OSXEditor)
+        {
+            return _GetImage();
+        }
+        else
+        {
+            return @"Hello";
+        }
+    }
 #endif
 
     /// <summary>
@@ -37,6 +63,15 @@ public class CanvasScript : MonoBehaviour
     private void Start()
     {
         InitializeTextValues();
+
+#if UNITY_IOS && !UNITY_EDITOR
+            texture2D = new Texture2D(200, 200);
+            imagePath = GetImage();
+            byte[] imageBytes = File.ReadAllBytes(imagePath);
+            texture2D.LoadImage(imageBytes);
+            cSendHelloWorldMessage();
+#endif
+
     }
 
     /// <summary>

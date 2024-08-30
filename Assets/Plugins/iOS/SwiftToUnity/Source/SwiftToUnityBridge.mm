@@ -1,5 +1,6 @@
 #import <UnityFramework/UnityFramework-Swift.h>
 #import "UnityInterface.h"
+#import <Photos/Photos.h>
 
 extern "C"
 {
@@ -39,4 +40,18 @@ extern "C"
         NSString *returnString = [[SwiftToUnity shared] swiftConcatenate :[NSString stringWithUTF8String:x] y:[NSString stringWithUTF8String:y]];
         return cStringCopy([returnString UTF8String]);
     }
+
+   
+   const char*  _GetImage()
+   {
+       NSLog(@"I am in Begin");
+       UIImage *myUIImage = [UIImage imageNamed:@"Test.jpg"];
+       NSData *imageData = UIImagePNGRepresentation(myUIImage);
+       NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+       NSString *documentsDirectory = [paths objectAtIndex:0];
+       NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"Test.jpg"]; //Add the file name
+       NSLog(@"filePath %@",filePath);
+       [imageData writeToFile:filePath atomically:YES];
+       return MakeStringCopy([filePath UTF8String]);
+   }
 }
