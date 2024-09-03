@@ -67,7 +67,7 @@ extern "C"
         
         NSLog(@"filePaths: %@",paths);
         for (unsigned i = 0; i < count; i++){
-            array[i] = cStringCopy([[a_array objectAtIndex:i] UTF8String]);
+            array[i] = cStringCopy([[paths objectAtIndex:i] UTF8String]);
         }
         
         return array;
@@ -80,7 +80,7 @@ extern "C"
         
         NSLog(@"filePaths: %@",paths);
         for (unsigned i = 0; i < numberOfImages; i++){
-            array[i] = cStringCopy([[a_array objectAtIndex:i] UTF8String]);
+            array[i] = cStringCopy([[paths objectAtIndex:i] UTF8String]);
         }
         
         return array;
@@ -96,10 +96,10 @@ extern "C"
         
         NSLog(@"filePaths: %@",paths);
         for (unsigned i = 0; i < rng; i++){
-            array[i] = cStringCopy([[a_array objectAtIndex:i] UTF8String]);
+            array[i] = cStringCopy([[paths objectAtIndex:i] UTF8String]);
         }
         
-        return array;
+        return [array shuffledArray];
     }
 
     
