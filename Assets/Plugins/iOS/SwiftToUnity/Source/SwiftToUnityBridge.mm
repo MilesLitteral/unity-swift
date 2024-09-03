@@ -57,16 +57,61 @@ extern "C"
        [imageData writeToFile:filePath atomically:YES];
        return cStringCopy([filePath UTF8String]);
    }
+    
 
-
-    const char*  _GetImages()
+    char**  _GetImages()
     {
         NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
+        unsigned count = [paths count];
+        char **array = (char **)malloc((count + 1) * sizeof(char*));
+        
         NSLog(@"filePaths: %@",paths);
+        for (unsigned i = 0; i < count; i++){
+            array[i] = cStringCopy([[a_array objectAtIndex:i] UTF8String]);
+        }
+        
+        return array;
+    }
 
-        NSString *imagesDirectory = [paths objectAtIndex:0];
-        NSString *filePath = [imagesDirectory stringByAppendingPathComponent:"*.png"]; //Add the file names by suffix
-        NSLog(@"filePath: %@",filePath);
-        return cStringCopy([filePath UTF8String]);
+    char**  _GetImages(int numberOfImages)
+    {
+        NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
+        char **array = (char **)malloc((count + 1) * sizeof(char*));
+        
+        NSLog(@"filePaths: %@",paths);
+        for (unsigned i = 0; i < numberOfImages; i++){
+            array[i] = cStringCopy([[a_array objectAtIndex:i] UTF8String]);
+        }
+        
+        return array;
+    }
+    
+    char**  _GetImagesRandom()
+    {
+        NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
+        unsigned count = [paths count];
+        char **array = (char **)malloc((count + 1) * sizeof(char*));
+        
+        int rng = arc4random_uniform(count);
+        
+        NSLog(@"filePaths: %@",paths);
+        for (unsigned i = 0; i < rng; i++){
+            array[i] = cStringCopy([[a_array objectAtIndex:i] UTF8String]);
+        }
+        
+        return array;
+    }
+
+    
+    void freeArray(char** array)
+    {
+        if (array != NULL)
+        {
+            for (unsigned index = 0; array[index] != NULL; index++)
+            {
+                free(array[index]);
+            }
+            free(array);
+        }
     }
 }
