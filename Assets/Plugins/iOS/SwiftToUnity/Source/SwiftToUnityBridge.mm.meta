@@ -67,7 +67,7 @@ PluginImporter:
         AddToEmbeddedBinaries: false
         CPU: AnyCPU
         CompileFlags: 
-        FrameworkDependencies: CryptoTokenKit;ImageCaptureCore;
+        FrameworkDependencies: CryptoTokenKit;ImageCaptureCore;Social;
   userData: 
   assetBundleName: 
   assetBundleVariant: 

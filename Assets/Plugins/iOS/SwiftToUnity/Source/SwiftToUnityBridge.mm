@@ -47,11 +47,26 @@ extern "C"
        NSLog(@"I am in Begin");
        UIImage *myUIImage = [UIImage imageNamed:@"Test.jpg"];
        NSData *imageData = UIImagePNGRepresentation(myUIImage);
-       NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+       
+       //
+       NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory NSPicturesDirectory
+, NSUserDomainMask, YES);
        NSString *documentsDirectory = [paths objectAtIndex:0];
-       NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"Test.jpg"]; //Add the file name
+       NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"Test.png"]; //Add the file name
        NSLog(@"filePath %@",filePath);
        [imageData writeToFile:filePath atomically:YES];
-       return MakeStringCopy([filePath UTF8String]);
+       return cStringCopy([filePath UTF8String]);
    }
+
+
+    const char*  _GetImages()
+    {
+        NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
+        NSLog(@"filePaths: %@",paths);
+
+        NSString *imagesDirectory = [paths objectAtIndex:0];
+        NSString *filePath = [imagesDirectory stringByAppendingPathComponent:"*.png"]; //Add the file names by suffix
+        NSLog(@"filePath: %@",filePath);
+        return cStringCopy([filePath UTF8String]);
+    }
 }
