@@ -37,4 +37,7 @@ import Foundation
     }
     
     @objc public func String _GetImage();
+    
+    @objc public func String _GetImages();
+
 }

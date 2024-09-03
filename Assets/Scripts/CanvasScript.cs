@@ -41,14 +41,30 @@ public class CanvasScript : MonoBehaviour
     private static extern string cConcatenate(string x, string y);
     
     [DllImport("__Internal")]
-     private static extern string _GetImage();
+    private static extern string _GetImage();
 
-     
+    [DllImport("__Internal")]
+    private static extern string _GetImages();
+
+    
     public static string GetImage()
     {
         if (Application.platform != RuntimePlatform.OSXEditor)
         {
             return _GetImage();
+        }
+        else
+        {
+            return @"Hello";
+        }
+    }
+
+         
+    public static string GetImages()
+    {
+        if (Application.platform != RuntimePlatform.OSXEditor)
+        {
+            return _GetImages();
         }
         else
         {
