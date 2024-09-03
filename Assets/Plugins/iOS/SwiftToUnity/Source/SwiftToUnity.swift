@@ -39,5 +39,9 @@ import Foundation
     @objc public func String _GetImage();
     
     @objc public func String _GetImages();
+    
+    @objc public func String[]  _GetImagesRandom();
+    
+    @objc public func String[]  _GetImages(int numberOfImages);
 
 }

@@ -46,6 +46,12 @@ public class CanvasScript : MonoBehaviour
     [DllImport("__Internal")]
     private static extern string _GetImages();
 
+    [DllImport("__Internal")]
+    private static extern string[] _GetImagesRandom();
+
+    [DllImport("__Internal")]
+    private static extern string[] _GetImages(int numberOfImages);
+
     
     public static string GetImage()
     {
