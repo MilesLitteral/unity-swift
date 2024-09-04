@@ -44,7 +44,7 @@ public class CanvasScript : MonoBehaviour
     private static extern string _GetImage();
 
     [DllImport("__Internal")]
-    private static extern string _GetImages();
+    private static extern void _FetchGalleryImages();
 
     [DllImport("__Internal")]
     private static extern string[] _GetImagesRandom();
@@ -66,15 +66,11 @@ public class CanvasScript : MonoBehaviour
     }
 
          
-    public static string GetImages()
+    public static void GetImages()
     {
         if (Application.platform != RuntimePlatform.OSXEditor)
         {
-            return _GetImages();
-        }
-        else
-        {
-            return @"Hello";
+            _FetchGalleryImages();
         }
     }
 #endif
@@ -92,7 +88,8 @@ public class CanvasScript : MonoBehaviour
             byte[] imageBytes = File.ReadAllBytes(imagePath);
             texture2D.LoadImage(imageBytes);
             cSendHelloWorldMessage();*/
-            Debug.Log( _GetImages());
+            _FetchGalleryImages();
+            //Debug.Log( _GetImages(0));
 #endif
 
     }

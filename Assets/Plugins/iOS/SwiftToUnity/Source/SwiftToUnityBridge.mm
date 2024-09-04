@@ -23,7 +23,12 @@ extern "C"
     {
         [[SwiftToUnity shared] swiftSendHelloWorldMessage];
     }
-
+    
+    void _fetchGalleryImages()
+    {
+     [[SwiftToUnity shared] _fetchGalleryImages]
+    }
+    
     char* cHelloWorld()
     {
         NSString *returnString = [[SwiftToUnity shared] swiftHelloWorld];
