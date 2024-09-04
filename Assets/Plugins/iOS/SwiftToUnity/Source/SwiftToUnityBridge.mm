@@ -48,35 +48,44 @@ extern "C"
        UIImage *myUIImage = [UIImage imageNamed:@"Test.jpg"];
        NSData *imageData = UIImagePNGRepresentation(myUIImage);
        
-       //
-       NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory NSPicturesDirectory
-, NSUserDomainMask, YES);
+       //NSPicturesDirectory
+       NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
        NSString *documentsDirectory = [paths objectAtIndex:0];
        NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"Test.png"]; //Add the file name
        NSLog(@"filePath %@",filePath);
        [imageData writeToFile:filePath atomically:YES];
        return cStringCopy([filePath UTF8String]);
-   }
-    
+    }
 
     char**  _GetImages()
     {
-        NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
-        unsigned count = [paths count];
+        NSArray  *path_to_images = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
+        NSUInteger count = [path_to_images count];
         char **array = (char **)malloc((count + 1) * sizeof(char*));
         
-        NSLog(@"filePaths: %@",paths);
-        for (unsigned i = 0; i < count; i++){
-            array[i] = cStringCopy([[paths objectAtIndex:i] UTF8String]);
+        NSString * sourcePath = [[path_to_images valueForKey:@"description"] componentsJoinedByString:@""];
+
+        NSArray* dirs = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:sourcePath error:NULL];
+        NSMutableArray *imageFiles = [[NSMutableArray alloc] init];
+        [dirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSString *filename = (NSString *)obj;
+            NSString *extension = [[filename pathExtension] lowercaseString];
+            [imageFiles addObject:[sourcePath stringByAppendingPathComponent:filename]];
+        }];
+        
+        NSUInteger countB = [imageFiles count];
+        NSLog(@"filePaths Found: %@", countB);
+        for (unsigned i = 0; i < countB; i++){
+            array[i] = cStringCopy([imageFiles[i] UTF8String]);
         }
         
         return array;
     }
 
-    char**  _GetImages(int numberOfImages)
+    char**  _GetImagesSet(int numberOfImages)
     {
         NSArray  *paths = NSSearchPathForDirectoriesInDomains(NSPicturesDirectory, NSUserDomainMask, YES);
-        char **array = (char **)malloc((count + 1) * sizeof(char*));
+        char **array = (char **)malloc((numberOfImages + 1) * sizeof(char*));
         
         NSLog(@"filePaths: %@",paths);
         for (unsigned i = 0; i < numberOfImages; i++){
@@ -98,8 +107,7 @@ extern "C"
         for (unsigned i = 0; i < rng; i++){
             array[i] = cStringCopy([[paths objectAtIndex:i] UTF8String]);
         }
-        
-        return [array shuffledArray];
+        return array;
     }
 
     

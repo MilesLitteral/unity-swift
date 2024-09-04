@@ -36,12 +36,13 @@ import Foundation
         return x + y
     }
     
-    @objc public func String _GetImage();
+    /*
+        @objc public func String _GetImage();
     
-    @objc public func String _GetImages();
-    
-    @objc public func String[]  _GetImagesRandom();
-    
-    @objc public func String[]  _GetImages(int numberOfImages);
-
+        @objc public func String _GetImages();
+        
+        @objc public func String[]  _GetImagesRandom();
+        
+        @objc public func String[]  _GetImages(int numberOfImages);
+     */
 }

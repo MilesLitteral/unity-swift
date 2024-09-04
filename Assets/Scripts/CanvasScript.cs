@@ -87,11 +87,12 @@ public class CanvasScript : MonoBehaviour
         InitializeTextValues();
 
 #if UNITY_IOS && !UNITY_EDITOR
-            texture2D = new Texture2D(200, 200);
+            /*texture2D = new Texture2D(200, 200);
             imagePath = GetImage();
             byte[] imageBytes = File.ReadAllBytes(imagePath);
             texture2D.LoadImage(imageBytes);
-            cSendHelloWorldMessage();
+            cSendHelloWorldMessage();*/
+            Debug.Log( _GetImages());
 #endif
 
     }
