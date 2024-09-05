@@ -23,10 +23,11 @@ extern "C"
     {
         [[SwiftToUnity shared] swiftSendHelloWorldMessage];
     }
-    
-    void _fetchGalleryImages()
+
+
+    NSArray<NSString *>* _FetchGalleryImages()
     {
-     [[SwiftToUnity shared] _fetchGalleryImages]
+        return [[SwiftToUnity shared] _FetchGalleryImages];
     }
     
     char* cHelloWorld()
