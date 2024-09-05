@@ -135,7 +135,7 @@ import Photos
                             self.getImageData(from: asset) { data in
                                 if let data = data {
                                     let byteString = data.base64EncodedString() // This converts the data to a base64-encoded string
-                                    self.bytes.append(asset.localIdentifier)
+                                    self.bytes.append(byteString)
                                     //self.assets.append(asset)
                                     //print("Byte string: \(byteString)")
                                 } else {
@@ -150,7 +150,8 @@ import Photos
             @unknown default:
                 fatalError("Unexpected authorization status.")
             }
-
+            
+            print("Number of Images Found: " + String(self.bytes.count));
             return self.bytes;
         
             //DispatchQueue.main.async {
