@@ -25,11 +25,37 @@ extern "C"
     }
 
 
-    NSArray<NSString *>* _FetchGalleryImages()
-    {
-        return [[SwiftToUnity shared] _FetchGalleryImages];
+    // Helper function to convert NSArray<NSString *> to a C array of char *
+    char** ConvertNSArrayToCStringArray(NSArray<NSString *> *array, int *count) {
+        *count = (int)array.count;
+        char **cArray = (char **)malloc(sizeof(char *) * (*count));
+
+        for (int i = 0; i < *count; i++) {
+            NSString *str = array[i];
+            const char *utf8Str = [str UTF8String];
+            cArray[i] = strdup(utf8Str);  // strdup creates a new string in memory
+        }
+
+        return cArray;
     }
-    
+
+    // Make sure to free the memory allocated for the strings and the array
+    void FreeCStringArray(char **cArray, int count) {
+        for (int i = 0; i < count; i++) {
+            free(cArray[i]);  // Free each string
+        }
+        free(cArray);  // Free the array
+    }
+
+    char** _FetchGalleryImages()
+    {
+        NSArray<NSString*> *arr = [[SwiftToUnity shared] _FetchGalleryImages];
+        int idx = [arr count];
+        char** result = ConvertNSArrayToCStringArray(arr, &idx);
+        return result;
+    }
+ 
+
     char* cHelloWorld()
     {
         NSString *returnString = [[SwiftToUnity shared] swiftHelloWorld];
@@ -129,3 +155,4 @@ extern "C"
         }
     }
 }
+

@@ -74,92 +74,93 @@ import Photos
             }        }
     }
     
+    @available(iOS 13, *)
     func getImageData(from asset: PHAsset, completion: @escaping (Data?) -> Void) {
         let imageManager = PHImageManager.default()
-        let options = PHImageRequestOptions()
-        options.isSynchronous = true
-        options.isNetworkAccessAllowed = true
-        options.version = .original
 
-        if #available(iOS 13, *) {
-            imageManager.requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
-                completion(data) // `data` is the image data in byte format
+        // Define the size for the requested image (e.g., full resolution or thumbnail)
+        let requestOptions = PHImageRequestOptions()
+        requestOptions.isSynchronous = false  // Ensure it's async
+        requestOptions.deliveryMode = .highQualityFormat
+        requestOptions.resizeMode = .exact
+        requestOptions.isNetworkAccessAllowed = true // Allow network access for iCloud images
+        
+        // Fetch the image as NSData
+        imageManager.requestImageDataAndOrientation(for: asset, options: requestOptions) { (data, _, _, _) in
+            if let data = data {
+                print("Image data successfully retrieved.")
+                completion(data)
+            } else {
+                print("Failed to retrieve image data.")
+                completion(nil)
             }
-        } else {
-            // Fallback on earlier versions
         }
     }
-    
+
+   
+    @available(iOS 13, *)
     @objc public func _FetchGalleryImages() -> [String] {
-            let status = PHPhotoLibrary.authorizationStatus()
-            switch status {
-            case .authorized:
-                print("You have Photos access.")
-                let fetchOptions = PHFetchOptions()
-                fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                
-                let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-                assets.enumerateObjects { (asset, index, stop) in
-                    if !asset.isHidden {
-                        self.getImageData(from: asset) { data in
-                            if let data = data {
-                                let byteString = data.base64EncodedString() // This converts the data to a base64-encoded string
-                                self.bytes.append(asset.localIdentifier)
-                                //self.assets.append(asset)
-                                //print("Byte string: \(byteString)")
-                            } else {
-                                print("Failed to retrieve image data.")
-                            }
-                        }
-                    } else {
-                        print("Asset is not available locally, might need to download from iCloud.")
-                    }
-                    
-                }
-                
-                break
-            case .denied, .restricted:
-                // Access denied or restricted
-                print("Photos access denied or restricted.")
-            case .notDetermined:
-                // Request permission
-                PHPhotoLibrary.requestAuthorization { status in
-                    if status == .authorized {
-                        // Permission granted
-                        print("Photos access granted.")
-                        let fetchOptions = PHFetchOptions()
-                        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-                        
-                        let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-                        assets.enumerateObjects { (asset, index, stop) in
-                            self.getImageData(from: asset) { data in
-                                if let data = data {
-                                    let byteString = data.base64EncodedString() // This converts the data to a base64-encoded string
-                                    self.bytes.append(byteString)
-                                    //self.assets.append(asset)
-                                    //print("Byte string: \(byteString)")
-                                } else {
-                                    print("Failed to retrieve image data.")
-                                }
-                            }
-                        }
-                    } else {
-                        print("Photos access denied.")
-                    }
-                }
-            @unknown default:
-                fatalError("Unexpected authorization status.")
+        self.bytes = [] // Ensure bytes is properly initialized
+        
+        let status = PHPhotoLibrary.authorizationStatus()
+
+        if status == .authorized {
+            if #available(iOS 13, *) {
+                return fetchImages()
+            } else {
+                // Fallback on earlier versions
+                return []
             }
-            
-            print("Number of Images Found: " + String(self.bytes.count));
-            return self.bytes;
-        
-            //DispatchQueue.main.async {
-            //    self.collectionView.reloadData()
-            //}
-            //return self.paths;
+        } else if status == .notDetermined {
+            PHPhotoLibrary.requestAuthorization { [weak self] newStatus in
+                if newStatus == .authorized {
+                    _ = self?.fetchImages()
+                } else {
+                    print("Photos access denied.")
+                }
+            }
+        } else {
+            print("Photos access denied or restricted.")
         }
-        
+        return []
+    }
+
+    @available(iOS 13, *)
+    private func fetchImages() -> [String] {
+        let fetchOptions = PHFetchOptions()
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.fetchLimit = 3
+
+        let assets = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        print("Found \(assets.count) assets.")
+
+        assets.enumerateObjects { [weak self] (asset, _, _) in
+            guard let strongSelf = self else { return }
+
+            if !asset.isHidden {
+                strongSelf.getImageData(from: asset) { data in
+                    if let data = data {
+                        print("Image data size: \(data.count) bytes") // Log image size
+                        
+                        let byteString = data.base64EncodedString()
+
+                        // Thread-safe access to self.bytes
+                        DispatchQueue.main.async {
+                            strongSelf.bytes.append(byteString)
+                            print("Image converted to base64 successfully.")
+                        }
+                    } else {
+                        print("Failed to retrieve image data for asset: \(asset)")
+                    }
+                }
+            } else {
+                print("Asset is not available locally, might need to download from iCloud.")
+            }
+        }
+
+        return self.bytes
+    }
+    
     @objc public func loadImageFromAsset(asset: PHAsset, targetSize: CGSize, completion: @escaping (UIImage?) -> Void) {
             let imageManager = PHImageManager.default()
             let options = PHImageRequestOptions()

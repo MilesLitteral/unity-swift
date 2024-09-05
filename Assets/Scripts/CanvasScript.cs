@@ -1,9 +1,17 @@
 #if !UNITY_EDITOR && UNITY_IOS
+using System;
 using System.Runtime.InteropServices;
 #endif
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using System.Text;
+using PimDeWitte.UnityMainThreadDispatcher;
+using System.Collections.Generic;
+
+//TODO: Xamarian support might make this conversion(NSArray<NSString> -> List<String>) trivial
+//using Foundation;
 
 /// <summary>
 /// Script to handle canvas UI elements and communication with iOS plugin.
@@ -16,6 +24,7 @@ public class CanvasScript : MonoBehaviour
     public Text ConcatText = null;
     public Image img = null;
 
+    public RawImage raw;
     private float _update;
     private bool _called = false;
     public Texture2D texture2D;
@@ -44,13 +53,19 @@ public class CanvasScript : MonoBehaviour
     private static extern string _GetImage();
 
     [DllImport("__Internal")]
-    private static extern void _FetchGalleryImages();
+    private static extern IntPtr _FetchGalleryImages();
 
     [DllImport("__Internal")]
     private static extern string[] _GetImagesRandom();
 
     [DllImport("__Internal")]
     private static extern string[] _GetImages(int numberOfImages);
+
+    [DllImport("__Internal")]
+    public static extern IntPtr ConvertNSArrayToCStringArray(IntPtr nsArray, out int count);
+
+    [DllImport("__Internal")]
+    public static extern void FreeCStringArray(IntPtr cArray, int count);
 
     
     public static string GetImage()
@@ -73,6 +88,13 @@ public class CanvasScript : MonoBehaviour
             _FetchGalleryImages();
         }
     }
+
+    private List<string> ConvertNSArrayToListString(object nsArray)
+    {
+        // Convert NSArray to List<string> assuming nsArray is a valid NSArray
+        // Replace with appropriate conversion logic
+        return nsArray as List<string> ?? new List<string>();
+    }
 #endif
 
     /// <summary>
@@ -81,15 +103,38 @@ public class CanvasScript : MonoBehaviour
     private void Start()
     {
         InitializeTextValues();
-
+        raw = GetComponent<RawImage>();
 #if UNITY_IOS && !UNITY_EDITOR
-            /*texture2D = new Texture2D(200, 200);
-            imagePath = GetImage();
-            byte[] imageBytes = File.ReadAllBytes(imagePath);
-            texture2D.LoadImage(imageBytes);
-            cSendHelloWorldMessage();*/
-            _FetchGalleryImages();
-            //Debug.Log( _GetImages(0));
+            cSendHelloWorldMessage();
+
+            // Ensure this method is called on the main thread
+            UnityMainThreadDispatcher.Instance().Enqueue(() => {
+                var ns = _FetchGalleryImages();
+                List<string> images = ConvertNSArrayToListString(ns);
+                Debug.Log($"Images: {images.Count}");
+
+                if (images.Count > 0)
+                {
+                    // Decode base64 string to byte array
+                    byte[] imageBytes = Convert.FromBase64String(images[0]);
+
+                    texture2D = new Texture2D(2, 2); // Initialize with a placeholder size
+                    texture2D.LoadImage(imageBytes); // Load image data into the texture
+                    texture2D.Apply();
+
+                     if (raw != null)
+                        {
+                            raw.texture = texture2D;
+                            raw.SetNativeSize(); // Optionally set the size to match the image
+                        }
+                    // Use the texture (e.g., apply it to a material)
+                    // GetComponent<Renderer>().material.mainTexture = texture2D;
+                }
+                else
+                {
+                    Debug.Log("No images found.");
+                }
+            });
 #endif
 
     }
