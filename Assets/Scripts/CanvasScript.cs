@@ -97,19 +97,10 @@ public class CanvasScript : MonoBehaviour
     }
 #endif
 
-    /// <summary>
-    /// Initializes the text values on Start.
-    /// </summary>
-    private void Start()
-    {
-        InitializeTextValues();
-        raw = GetComponent<RawImage>();
-#if UNITY_IOS && !UNITY_EDITOR
-            cSendHelloWorldMessage();
-
+    public static async void createIOSThread(){
             // Ensure this method is called on the main thread
             UnityMainThreadDispatcher.Instance().Enqueue(() => {
-                var ns = _FetchGalleryImages();
+                var ns = await _FetchGalleryImages();
                 List<string> images = ConvertNSArrayToListString(ns);
                 Debug.Log($"Images: {images.Count}");
 
@@ -135,8 +126,19 @@ public class CanvasScript : MonoBehaviour
                     Debug.Log("No images found.");
                 }
             });
-#endif
+    }
 
+    /// <summary>
+    /// Initializes the text values on Start.
+    /// </summary>
+    private async void Start()
+    {
+        InitializeTextValues();
+        raw = GetComponent<RawImage>();
+#if UNITY_IOS && !UNITY_EDITOR
+        cSendHelloWorldMessage();
+        await createIOSThread();
+#endif
     }
 
     /// <summary>
